@@ -40,7 +40,7 @@ public enum PackageKey : uint
     /// <summary>
     /// A string with the package name and app target, like <c>43891JeniusApps.Ambie_jaj7tphbgjeh8!App</c>.
     /// </summary>
-    PackageNameAppTarget = 0x05,
+    PackageFamilyNameAppTarget = 0x05,
 
     /// <summary>
     /// Corresponds to <see cref="MsixShortcut.RuntimeBehavior"/>. The meaning is not entirely clear but this appears to be 1=UWP; 2=DesktopBridge/Win32
@@ -58,7 +58,7 @@ public enum PackageKey : uint
     PackageFamilyName = 0x11,
 
     /// <summary>
-    /// A string describing the full name of the package including processor architecture, like <c>43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>.
+    /// A string describing the full name of the package including version and processor architecture at the time the shortcut was created, like <c>43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>.
     /// </summary>
     PackageArch = 0x15,
 
@@ -81,14 +81,14 @@ public enum PackageKey : uint
 public enum RuntimeBehavior : uint
 {
     /// <summary>
-    /// The app has a UWP lifetime and needs to be "activated" to run.
+    /// The app has a UWP lifetime.
     /// </summary>
     UWP = 1,
 
     /// <summary>
     /// The app has a classic Win32 lifetime and/or is a "Desktop Bridge" app.
     /// </summary>
-    DesktopBridge = 2
+    Win32 = 2
 }
 
 public enum AssetKey : uint
@@ -172,7 +172,15 @@ public enum Unknown1Key : uint
 public enum DisplayNameKey : uint
 {
     /// <summary>
+    /// <para>
     /// The app name used on the taskbar pin when the user right-clicks the shell link and selects "Pin to Taskbar". This value should be identical to <see cref="AssetKey.DisplayName"/>.
+    /// </para>
+    /// <para>
+    /// When creating shell links, this key is not required, and the name will instead be read directly the manifest. However, it is possible to set this to a different name.
+    /// During testing on Win10 build 19045, it is possible to set this name to the display name of any other installed packaged application on the system. For example,
+    /// if you are creating a shortcut to Ambie and you also have TranslucentTB installed, you can set this to "TranslucentTB" and right-clicking the icon will then show "TranslucentTB".
+    /// This has no effect on the displayed icon.
+    /// </para>
     /// </summary>
     TaskbarPinName = 0x0A
 }
