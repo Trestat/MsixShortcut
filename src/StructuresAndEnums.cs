@@ -256,7 +256,7 @@ public sealed record DataEntryHeader(
 }
 
 
-public interface IDataEntryValue { }
+public interface IDataEntryValue;
 
 public sealed record Unknown0B_32DataEntryValue(uint Value) : IDataEntryValue;
 

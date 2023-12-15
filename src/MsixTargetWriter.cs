@@ -57,7 +57,7 @@ public sealed class MsixTargetWriter
 
         long originPos = Writer.BaseStream.Position;
 
-        Writer.Write((uint)0);              // Trailer length
+        Writer.Write((uint)0);                      // Trailer length
 
         trailerWriter.Invoke(new MsixSectionWriter(Writer.BaseStream));
 
