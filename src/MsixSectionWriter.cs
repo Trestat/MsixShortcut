@@ -21,7 +21,7 @@ public sealed class MsixSectionWriter
         long sectionLengthPos = Writer.BaseStream.Position;
 
         Writer.Write((uint)0);              // section length
-        Writer.Write((uint)0x53505331);     // magic
+        Writer.Write((uint)0x53505331);     // magic "SPS1"
         Writer.Write(guid.ToByteArray());   // guid
 
         innerWriter.Invoke(new DataEntryWriter(Writer.BaseStream));
