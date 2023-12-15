@@ -333,6 +333,10 @@ public sealed record Trailer(
     Section Section,
     ushort LengthB);
 
+public sealed record LinkIdObject(
+    MainBody MainBody,
+    Trailer Trailer);
+
 public static class DataEntryConstants
 {
     public const int GUID_LENGTH = 16;
