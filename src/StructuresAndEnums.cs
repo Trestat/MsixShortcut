@@ -43,9 +43,9 @@ public enum PackageKey : uint
     PackageFamilyNameAppTarget = 0x05,
 
     /// <summary>
-    /// Corresponds to <see cref="MsixShortcut.RuntimeBehavior"/>. The meaning is not entirely clear but this appears to be 1=UWP; 2=DesktopBridge/Win32
+    /// Corresponds to <see cref="MsixShortcut.ActivationBehavior"/>. The meaning is not entirely clear but this appears to be 1=UWP; 2=DesktopBridge/Win32
     /// </summary>
-    RuntimeBehavior = 0x0E,
+    ActivationBehavior = 0x0E,
 
     /// <summary>
     /// A string with the full file system path to the installed package at the time the shortcut was created, like <c>C:\Program Files\WindowsApps\43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>.
@@ -78,7 +78,7 @@ public enum PackageKey : uint
     Unknown27 = 0x27 // (discovered on Windows build 22621)
 }
 
-public enum RuntimeBehavior : uint
+public enum ActivationBehavior : uint
 {
     /// <summary>
     /// The app has a UWP lifetime.

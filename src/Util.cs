@@ -107,7 +107,7 @@ public static class Util
                         guid: KnownSectionGuids.Package,
                         dataEntryWriter =>
                         {
-                            dataEntryWriter.U32((uint)PackageKey.RuntimeBehavior, (uint)options.RuntimeBehavior); // Required for launch
+                            dataEntryWriter.U32((uint)PackageKey.ActivationBehavior, (uint)options.RuntimeBehavior); // Required for launch
                             dataEntryWriter.Text((uint)PackageKey.PackageFamilyNameAppTarget, $"{options.PackageFamilyName}!{options.AppIdentifier}"); // Required for launch
                             dataEntryWriter.Text((uint)PackageKey.PackagePath, options.PackageInstallationPath, extra: 0); // Required for icon to display correctly
                         });
@@ -218,7 +218,7 @@ public static class Util
 public sealed record PackageShortcutOptions(
     string PackageInstallationPath,
     string PackageFamilyName,
-    RuntimeBehavior RuntimeBehavior,
+    ActivationBehavior RuntimeBehavior,
     string AppIdentifier,
     string? Square44x44LogoPath = null,
     string? Square71x71LogoPath = null,
