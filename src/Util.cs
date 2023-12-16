@@ -106,8 +106,7 @@ public static class Util
             // "Applications"
             itemIdWriter.Item(
             [
-                0x1F, 0x80, 0x9B, 0xD4, 0x34, 0x42, 0x45, 0x02, 0xF3, 0x4D, 0xB7, 0x80, 0x38, 0x93, 0x94, 0x34,
-                0x56, 0xE1
+                0x1F, 0x80, 0x9B, 0xD4, 0x34, 0x42, 0x45, 0x02, 0xF3, 0x4D, 0xB7, 0x80, 0x38, 0x93, 0x94, 0x34, 0x56, 0xE1
             ]);
 
             itemIdWriter.Item(mtWriter =>
@@ -121,7 +120,7 @@ public static class Util
                         {
                             dataEntryWriter.U32((uint)PackageKey.ActivationBehavior, (uint)options.ActivationBehavior); // Required for launch
                             dataEntryWriter.Text((uint)PackageKey.PackageFamilyNameAppTarget, $"{options.PackageFamilyName}!{options.AppIdentifier}"); // Required for launch
-                            dataEntryWriter.Text((uint)PackageKey.PackagePath, options.PackageInstallationPath, extra: 0); // Required for icon to display correctly
+                            dataEntryWriter.Text((uint)PackageKey.PackageInstallPath, options.PackageInstallationPath, extra: 0); // Required for icon to display correctly
                         });
 
                     msWriter.Section(

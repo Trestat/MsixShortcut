@@ -43,14 +43,14 @@ public enum PackageKey : uint
     PackageFamilyNameAppTarget = 0x05,
 
     /// <summary>
-    /// Corresponds to <see cref="MsixShortcut.ActivationBehavior"/>. The meaning is not entirely clear but this appears to be 1=UWP; 2=DesktopBridge/Win32
+    /// Corresponds to <see cref="MsixShortcut.ActivationBehavior"/>.
     /// </summary>
     ActivationBehavior = 0x0E,
 
     /// <summary>
     /// A string with the full file system path to the installed package at the time the shortcut was created, like <c>C:\Program Files\WindowsApps\43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>.
     /// </summary>
-    PackagePath = 0x0F,
+    PackageInstallPath = 0x0F,
 
     /// <summary>
     /// A string describing the package family name, like <c>43891JeniusApps.Ambie_jaj7tphbgjeh8</c>.
@@ -173,13 +173,27 @@ public enum DisplayNameKey : uint
 {
     /// <summary>
     /// <para>
-    /// The app name used on the taskbar pin when the user right-clicks the shell link and selects "Pin to Taskbar". This value should be identical to <see cref="AssetKey.DisplayName"/>.
+    /// The app name used on the taskbar pin. This value is applied when the user right-clicks the shell link and selects "Pin to Taskbar". This value should be identical to <see cref="AssetKey.DisplayName"/>.
     /// </para>
     /// <para>
-    /// When creating shell links, this key is not required, and the name will instead be read directly the manifest. However, it is possible to set this to a different name.
-    /// During testing on Win10 build 19045, it is possible to set this name to the display name of any other installed packaged application on the system. For example,
-    /// if you are creating a shortcut to Ambie and you also have TranslucentTB installed, you can set this to "TranslucentTB" and right-clicking the icon will then show "TranslucentTB".
-    /// This has no effect on the displayed icon.
+    /// The name is shown on the taskbar pin in two places: when the application is closed and the user hovers the mouse over the pin to reveal a tooltip (the "Tooltip Name"), and when the user right-clicks the pin to reveal
+    /// the jump list and the name is shown at the top of the list (the "Jump List Name").
+    /// </para>
+    /// <para>
+    /// The absence of this key or setting it to a value that is not <see cref="AssetKey.DisplayName"/> can have unusual behavior as tested on Win10 build 19045 and Win11 build 22621.
+    /// </para>
+    /// <para>
+    /// When the key is absent, the Jump List Name will be the same as defined on the DisplayName property on the
+    /// <a href="https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-application">Application</a> element of the AppxManifest.
+    /// However, the Tooltip Name will be undefined and usually uses the same tooltip text as another pinned app on the taskbar when the user hovers the mouse over it. For example, hovering the mouse over the Windows Terminal
+    /// pin and then back over the pin in question will reveal a Tooltip Name of "Windows Terminal".
+    /// </para>
+    /// <para>
+    /// When the key is present but is a random string, the behavior is the same as if it were absent.
+    /// </para>
+    /// <para>
+    /// When the key is present and set to the name of another packaged app, both the Jump List Name and the Tooltip Name will use the name of the other app. For example, if you were to create a shortcut to
+    /// <a href="https://apps.microsoft.com/detail/9P07XNM5CHP0">Ambie</a> and you also had <a href="https://apps.microsoft.com/detail/9PF4KZ2VN4W9">TranslucentTB</a> installed, the pin would adopt the name "TranslucentTB".
     /// </para>
     /// </summary>
     TaskbarPinName = 0x0A
