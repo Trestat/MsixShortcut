@@ -311,7 +311,7 @@ public static class Util
     {
         const string Crockford32Alphabet = "0123456789abcdefghjkmnpqrstvwxyz";
 
-        using var sha = HashAlgorithm.Create("SHA256");
+        using var sha = SHA256.Create();
 
         var hash = sha.ComputeHash(Encoding.Unicode.GetBytes(identityPublisher));
 
@@ -351,7 +351,7 @@ internal static class XmlExtensions
         .FindFirstNodeOrDefault(nodeLocalName, namespaceUri)
         ?? throw new MsixShortcutException($"Could not find an '{nodeLocalName}' node in the AppxManifest.");
 
-    public static XmlAttribute FindAttributeOrDefault(this XmlNode node, string attributeLocalName, string namespaceUri) =>
+    public static XmlAttribute? FindAttributeOrDefault(this XmlNode node, string attributeLocalName, string namespaceUri) =>
         node.Attributes
         .Cast<XmlAttribute>()
         .FirstOrDefault(a =>
