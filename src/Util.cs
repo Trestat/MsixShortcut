@@ -233,8 +233,13 @@ public static class Util
 
         if (appIdentifier is null)
         {
+            if (applicationNodes.Count() > 1)
+            {
+                throw new ArgumentException($"There is more than one 'Application' node defined. You must specify an app ID.", nameof(appIdentifier));
+            }
+
             applicationNode = applicationNodes
-                .FirstOrDefault()
+                .SingleOrDefault()
                 ?? throw new MsixShortcutException("Could not find an 'Application' node in the AppxManifest.");
         }
         else
