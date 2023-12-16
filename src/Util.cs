@@ -40,7 +40,7 @@ public static class Util
     /// The package's installation path, like <c>C:\Program Files\WindowsApps\43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>. 
     /// </para>
     /// <para>
-    /// To get the installation path for a package, acquire a <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package">Windows.ApplicationModel.Package</a> object from WinRT and get the
+    /// To get the installation path for a package, acquire a <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package">Windows.ApplicationModel.Package</a> object and get the
     /// <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package.installedlocation">InstalledPath</a> property.
     /// </para>
     /// </param>
@@ -179,7 +179,7 @@ public static class Util
     /// The package's installation path, like <c>C:\Program Files\WindowsApps\43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>. 
     /// </para>
     /// <para>
-    /// To get the installation path for a package, acquire a <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package">Windows.ApplicationModel.Package</a> object from WinRT and get the
+    /// To get the installation path for a package, acquire a <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package">Windows.ApplicationModel.Package</a> object and get the
     /// <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package.installedlocation">InstalledPath</a> property.
     /// </para>
     /// </param>
@@ -259,9 +259,9 @@ public static class Util
             .FindFirstNodeOrDefault("DefaultTile", nsUap);
 
         ActivationBehavior activationBehavior = CalculateActivationBehavior(
+            startPage: applicationNode.GetAttributeValueOrDefault("StartPage", string.Empty),
             entryPoint: applicationNode.GetAttributeValueOrDefault("EntryPoint", string.Empty),
-            runtimeBehavior: applicationNode.GetAttributeValueOrDefault("RuntimeBehavior", nsUap10),
-            trustLevel: applicationNode.GetAttributeValueOrDefault("TrustLevel", nsUap10));
+            runtimeBehavior: applicationNode.GetAttributeValueOrDefault("RuntimeBehavior", nsUap10));
 
         PackageShortcutOptions options = new(
             PackageInstallationPath: packageInstallationPath,
@@ -278,9 +278,32 @@ public static class Util
         CreateShortcut(options, outputStream);
     }
 
-    private static ActivationBehavior CalculateActivationBehavior(string? entryPoint, string? runtimeBehavior, string? trustLevel)
+    private static ActivationBehavior CalculateActivationBehavior(string? startPage, string? entryPoint, string? runtimeBehavior)
     {
-        // TODO
+        // https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-application#remarks
+
+        // StartPage is set for UWP JavaScript apps.
+        if (startPage is not null)
+        {
+            return ActivationBehavior.UWP;
+        }
+
+        if (string.Equals(runtimeBehavior, "packagedClassicApp", StringComparison.InvariantCultureIgnoreCase)
+            || string.Equals(runtimeBehavior, "win32App", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return ActivationBehavior.Win32;
+        }
+        
+        if (string.Equals(runtimeBehavior, "windowsApp", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return ActivationBehavior.UWP;
+        }
+
+        if (string.Equals(entryPoint, "windows.fullTrustApplication", StringComparison.InvariantCultureIgnoreCase)
+            || string.Equals(entryPoint, "windows.partialTrustApplication", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return ActivationBehavior.Win32;
+        }
 
         return ActivationBehavior.UWP;
     }
@@ -344,7 +367,7 @@ internal static class XmlExtensions
     public static string GetAttributeValueOrThrow(this XmlNode node, string attributeLocalName, string namespaceUri) =>
         (node
         .FindAttributeOrDefault(attributeLocalName, namespaceUri)
-        ?? throw new MsixShortcutException($"Could not find attribute '{attributeLocalName}' on node '{node.LocalName}' from the AppxManifest."))
+        ?? throw new MsixShortcutException($"Could not find attribute '{attributeLocalName}' on node '{node.LocalName}' in the AppxManifest."))
         .Value;
 }
 
