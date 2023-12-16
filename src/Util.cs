@@ -224,14 +224,14 @@ public static class Util
         const string nsUap10 = "http://schemas.microsoft.com/appx/manifest/uap/windows10/10";
 
         var identityNode = manifest
-            .FindFirstNodeOrThrow("Identity", ns);
+            .FindFirstElementOrThrow("Identity", ns);
 
         var applicationNodes = manifest
-            .FindFirstNodeOrThrow("Package", ns)
-            .FindFirstNodeOrThrow("Applications", ns)
-            .FindNodes("Application", ns);
+            .FindFirstElementOrThrow("Package", ns)
+            .FindFirstElementOrThrow("Applications", ns)
+            .FindElements("Application", ns);
 
-        XmlNode applicationNode;
+        XmlElement applicationNode;
 
         if (appIdentifier is null)
         {
@@ -251,11 +251,11 @@ public static class Util
                 ?? throw new MsixShortcutException($"Could not find any 'Application' node matching Id '{appIdentifier}'.");
         }
 
-        XmlNode visualElementsNode = applicationNode
-            .FindFirstNodeOrThrow("VisualElements", nsUap);
+        XmlElement visualElementsNode = applicationNode
+            .FindFirstElementOrThrow("VisualElements", nsUap);
 
-        XmlNode? defaultTileNode = visualElementsNode
-            .FindFirstNodeOrDefault("DefaultTile", nsUap);
+        XmlElement? defaultTileNode = visualElementsNode
+            .FindFirstElementOrDefault("DefaultTile", nsUap);
 
         ActivationBehavior activationBehavior = CalculateActivationBehavior(
             startPage: applicationNode.GetAttributeValueOrDefault("StartPage", string.Empty),
@@ -334,36 +334,36 @@ public static class Util
 
 internal static class XmlExtensions
 {
-    public static IEnumerable<XmlNode> FindNodes(this XmlNode node, string nodeLocalName, string namespaceUri) =>
+    public static IEnumerable<XmlElement> FindElements(this XmlNode node, string nodeLocalName, string namespaceUri) =>
         node
-        .Cast<XmlNode>()
+        .Cast<XmlElement>()
         .Where(n =>
             string.Equals(n.LocalName, nodeLocalName, StringComparison.OrdinalIgnoreCase)
             && string.Equals(n.NamespaceURI, namespaceUri, StringComparison.OrdinalIgnoreCase));
 
-    public static XmlNode? FindFirstNodeOrDefault(this XmlNode node, string nodeLocalName, string namespaceUri) =>
+    public static XmlElement? FindFirstElementOrDefault(this XmlNode node, string nodeLocalName, string namespaceUri) =>
         node
-        .FindNodes(nodeLocalName, namespaceUri)
+        .FindElements(nodeLocalName, namespaceUri)
         .FirstOrDefault();
 
-    public static XmlNode FindFirstNodeOrThrow(this XmlNode node, string nodeLocalName, string namespaceUri) =>
+    public static XmlElement FindFirstElementOrThrow(this XmlNode node, string nodeLocalName, string namespaceUri) =>
         node
-        .FindFirstNodeOrDefault(nodeLocalName, namespaceUri)
+        .FindFirstElementOrDefault(nodeLocalName, namespaceUri)
         ?? throw new MsixShortcutException($"Could not find an '{nodeLocalName}' node in the AppxManifest.");
 
-    public static XmlAttribute? FindAttributeOrDefault(this XmlNode node, string attributeLocalName, string namespaceUri) =>
+    public static XmlAttribute? FindAttributeOrDefault(this XmlElement node, string attributeLocalName, string namespaceUri) =>
         node.Attributes
         .Cast<XmlAttribute>()
         .FirstOrDefault(a =>
             string.Equals(a.LocalName, attributeLocalName, StringComparison.OrdinalIgnoreCase)
             && string.Equals(a.NamespaceURI, namespaceUri, StringComparison.OrdinalIgnoreCase));
 
-    public static string? GetAttributeValueOrDefault(this XmlNode attribute, string attributeLocalName, string namespaceUri) =>
-        attribute
+    public static string? GetAttributeValueOrDefault(this XmlElement node, string attributeLocalName, string namespaceUri) =>
+        node
         .FindAttributeOrDefault(attributeLocalName, namespaceUri)
         ?.Value;
 
-    public static string GetAttributeValueOrThrow(this XmlNode node, string attributeLocalName, string namespaceUri) =>
+    public static string GetAttributeValueOrThrow(this XmlElement node, string attributeLocalName, string namespaceUri) =>
         (node
         .FindAttributeOrDefault(attributeLocalName, namespaceUri)
         ?? throw new MsixShortcutException($"Could not find attribute '{attributeLocalName}' on node '{node.LocalName}' in the AppxManifest."))
