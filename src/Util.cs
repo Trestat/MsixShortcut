@@ -235,7 +235,7 @@ public static class Util
         {
             if (applicationNodes.Count() > 1)
             {
-                throw new ArgumentException($"There is more than one 'Application' node defined. You must specify an app ID.", nameof(appIdentifier));
+                throw new ArgumentException($"There is more than one 'Application' node in the AppxManifest. You must specify an app ID to clarify which one to target.", nameof(appIdentifier));
             }
 
             applicationNode = applicationNodes
