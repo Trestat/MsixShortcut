@@ -217,8 +217,6 @@ public static class Util
             manifest.Load(manifestFileStream);
         }
 
-        var nav = manifest.CreateNavigator();
-
         const string ns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
         const string nsUap = "http://schemas.microsoft.com/appx/manifest/uap/windows10";
         const string nsUap10 = "http://schemas.microsoft.com/appx/manifest/uap/windows10/10";
