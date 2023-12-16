@@ -10,7 +10,7 @@ public static class Util
     /// Creates a new shell link file at the given path. If the shortcut file already exists, it will be overwritten.
     /// </summary>
     /// <param name="options"></param>
-    /// <param name="pathToShortcut">The path to the shortcut file, ending with an .LNK extension.</param>
+    /// <param name="pathToShortcut">The path to the shortcut file to be created, ending with an .LNK extension.</param>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
     public static void CreateShortcut(PackageShortcutOptions options, string pathToShortcut)
@@ -44,7 +44,7 @@ public static class Util
     /// <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package.installedlocation">InstalledPath</a> property.
     /// </para>
     /// </param>
-    /// <param name="pathToShortcut">The path to the shortcut file, ending with an .LNK extension.</param>
+    /// <param name="pathToShortcut">The path to the shortcut file to be created, ending with an .LNK extension.</param>
     /// /// <param name="appIdentifier">
     /// The Id of the app that you want to launch. If the AppxManifest contains more than one Application declaration, this parameter is required.
     /// <para>
