@@ -17,6 +17,7 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
         <PackageReference Include="coverlet.collector" Version="6.0.0" />
+        <PackageReference Include="securifybv.ShellLink" Version="0.1.0" />
     </ItemGroup>
 
     <ItemGroup>

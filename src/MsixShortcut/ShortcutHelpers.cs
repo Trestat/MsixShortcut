@@ -32,6 +32,7 @@ public static class ShortcutHelpers
         fs.Flush();
     }
 
+    /*
     /// <summary>
     /// Creates a new shell link file at the given path from the given package installation. If the shortcut file already exists, it will be overwritten.
     /// </summary>
@@ -72,6 +73,7 @@ public static class ShortcutHelpers
 
         fs.Flush();
     }
+    */
 
     /// <summary>
     /// Creates a new shell link file using the given options and writes it to the output stream.
@@ -170,6 +172,7 @@ public static class ShortcutHelpers
         writer.Footer();
     }
 
+    /*
     /// <summary>
     /// Creates a new shell link by reading the AppxManifest.xml from the given package installation path and writes it to the output stream.
     /// </summary>
@@ -388,6 +391,7 @@ public static class ShortcutHelpers
 
         return $"{identityName}_{encodedPublisherId}";
     }
+    */
 }
 
 internal static class XmlExtensions
