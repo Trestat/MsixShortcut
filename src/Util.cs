@@ -131,7 +131,7 @@ public static class Util
                             // All square tile assets must have a non-null `extra` value for it to be recognized as an icon for the desktop shortcut.
                             // This is not relevant if the icon is merely pinned to the taskbar or to the Start menu as a tile.
 
-                            // (Win10) Regardless of the asset provided, at least one must be provided for the shortcut to have an icon.
+                            // (Win10 19045) Regardless of the asset provided, at least one must be provided for the shortcut to have an icon.
                             // Additionally, it does not matter which asset key is provided, as Explorer will always use the appropriate
                             // small, medium, or large tile depending on factors such as UI scaling and the display mode in Explorer
                             // (i.e. "Extra large icons", "Medium icons", "Details" views, etc.)
@@ -182,6 +182,7 @@ public static class Util
     /// <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package.installedlocation">InstalledPath</a> property.
     /// </para>
     /// </param>
+    /// <param name="outputStream">The stream to which to write the new shell link file. The stream is left open.</param>
     /// <param name="appIdentifier">
     /// The Id of the app that you want to launch. If the AppxManifest contains more than one Application declaration, this parameter is required.
     /// <para>
@@ -189,7 +190,6 @@ public static class Util
     /// element in the AppxManifest.
     /// </para>
     /// </param>
-    /// <param name="outputStream">The stream to which to write the new shell link file. The stream is left open.</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="MsixShortcutException"></exception>
@@ -210,22 +210,72 @@ public static class Util
             throw new ArgumentException("The output stream must be writable.", nameof(outputStream));
         }
 
-        var manifest = new XmlDocument();
+        string xml;
 
         using (var manifestFileStream = new FileStream(Path.Combine(packageInstallationPath, "AppxManifest.xml"), FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var reader = new StreamReader(manifestFileStream))
         {
-            manifest.Load(manifestFileStream);
+            xml = reader.ReadToEnd();
         }
+
+        var options = GetShortcutOptionsFromAppxManifest(packageInstallationPath, xml, appIdentifier);
+
+        CreateShortcut(options, outputStream);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="PackageShortcutOptions"/> from the given AppxManifest.
+    /// </summary>
+    /// <param name="packageInstallationPath">
+    /// <para>
+    /// The package's installation path, like <c>C:\Program Files\WindowsApps\43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>. 
+    /// </para>
+    /// <para>
+    /// To get the installation path for a package, acquire a <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package">Windows.ApplicationModel.Package</a> object and get the
+    /// <a href="https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.package.installedlocation">InstalledPath</a> property.
+    /// </para>
+    /// </param>
+    /// <param name="xml">The XML contents of the AppxManifest.xml file.</param>
+    /// <param name="appIdentifier">
+    /// The Id of the app that you want to launch. If the AppxManifest contains more than one Application declaration, this parameter is required.
+    /// <para>
+    /// Corresponds to the Id attribute on the <a href="https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-application">Application</a>
+    /// element in the AppxManifest.
+    /// </para>
+    /// </param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="MsixShortcutException">Thrown when the AppxManifest does not contain a required element or attribute.</exception>
+    public static PackageShortcutOptions GetShortcutOptionsFromAppxManifest(string packageInstallationPath, string xml, string? appIdentifier = null)
+    {
+        if (string.IsNullOrWhiteSpace(packageInstallationPath))
+        {
+            throw new ArgumentException($"'{nameof(packageInstallationPath)}' cannot be null or whitespace.", nameof(packageInstallationPath));
+        }
+
+        if (string.IsNullOrWhiteSpace(xml))
+        {
+            throw new ArgumentException($"'{nameof(xml)}' cannot be null or whitespace.", nameof(xml));
+        }
+
+        var manifest = new XmlDocument();
+
+        manifest.LoadXml(xml);
 
         const string ns = "http://schemas.microsoft.com/appx/manifest/foundation/windows10";
         const string nsUap = "http://schemas.microsoft.com/appx/manifest/uap/windows10";
         const string nsUap10 = "http://schemas.microsoft.com/appx/manifest/uap/windows10/10";
 
-        var identityNode = manifest
+        var packageNode =
+            manifest
+            .FindFirstElementOrThrow("Package", ns);
+
+        var identityNode =
+            packageNode
             .FindFirstElementOrThrow("Identity", ns);
 
-        var applicationNodes = manifest
-            .FindFirstElementOrThrow("Package", ns)
+        var applicationNodes =
+            packageNode
             .FindFirstElementOrThrow("Applications", ns)
             .FindElements("Application", ns);
 
@@ -250,7 +300,7 @@ public static class Util
                     .Any(a =>
                         string.Equals(a.LocalName, "Id", StringComparison.OrdinalIgnoreCase)
                         && string.Equals(a.NamespaceURI, string.Empty, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(a.Value, appIdentifier)))
+                        && string.Equals(a.Value, appIdentifier, StringComparison.OrdinalIgnoreCase)))
                 ?? throw new MsixShortcutException($"Could not find any 'Application' node matching Id '{appIdentifier}'.");
         }
 
@@ -270,6 +320,7 @@ public static class Util
             PackageFamilyName: CalculatePackageFamilyName(
                 identityName: identityNode.GetAttributeValueOrThrow("Name", string.Empty),
                 identityPublisher: identityNode.GetAttributeValueOrThrow("Publisher", string.Empty)),
+            DisplayName: visualElementsNode.GetAttributeValueOrThrow("DisplayName", string.Empty),
             ActivationBehavior: activationBehavior,
             AppIdentifier: applicationNode.GetAttributeValueOrThrow("Id", string.Empty),
             Square44x44LogoPath: visualElementsNode.GetAttributeValueOrThrow("Square44x44Logo", string.Empty),
@@ -277,7 +328,7 @@ public static class Util
             Square150x150LogoPath: visualElementsNode.GetAttributeValueOrThrow("Square150x150Logo", string.Empty),
             Wide310x150LogoPath: defaultTileNode?.GetAttributeValueOrDefault("Wide310x150Logo", string.Empty));
 
-        CreateShortcut(options, outputStream);
+        return options;
     }
 
     private static ActivationBehavior CalculateActivationBehavior(string? startPage, string? entryPoint, string? runtimeBehavior)
@@ -290,19 +341,19 @@ public static class Util
             return ActivationBehavior.UWP;
         }
 
-        if (string.Equals(runtimeBehavior, "packagedClassicApp", StringComparison.InvariantCultureIgnoreCase)
-            || string.Equals(runtimeBehavior, "win32App", StringComparison.InvariantCultureIgnoreCase))
+        if (string.Equals(runtimeBehavior, "packagedClassicApp", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(runtimeBehavior, "win32App", StringComparison.OrdinalIgnoreCase))
         {
             return ActivationBehavior.Win32;
         }
-        
-        if (string.Equals(runtimeBehavior, "windowsApp", StringComparison.InvariantCultureIgnoreCase))
+
+        if (string.Equals(runtimeBehavior, "windowsApp", StringComparison.OrdinalIgnoreCase))
         {
             return ActivationBehavior.UWP;
         }
 
-        if (string.Equals(entryPoint, "windows.fullTrustApplication", StringComparison.InvariantCultureIgnoreCase)
-            || string.Equals(entryPoint, "windows.partialTrustApplication", StringComparison.InvariantCultureIgnoreCase))
+        if (string.Equals(entryPoint, "windows.fullTrustApplication", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(entryPoint, "windows.partialTrustApplication", StringComparison.OrdinalIgnoreCase))
         {
             return ActivationBehavior.Win32;
         }
@@ -312,19 +363,23 @@ public static class Util
 
     private static string CalculatePackageFamilyName(string identityName, string identityPublisher)
     {
-        const string Crockford32Alphabet = "0123456789abcdefghjkmnpqrstvwxyz";
+        const string CrockfordBase32Alphabet = "0123456789abcdefghjkmnpqrstvwxyz";
 
         using var sha = SHA256.Create();
 
-        var hash = sha.ComputeHash(Encoding.Unicode.GetBytes(identityPublisher));
+        byte[] hash = sha.ComputeHash(Encoding.Unicode.GetBytes(identityPublisher));
 
-        var binaryString = string.Concat(hash
+        string binaryString = string.Concat(
+            hash
             .Take(8)
-            .Select(c => Convert.ToString(c, toBase: 2).PadLeft(8, '0'))) + '0'; // representing 65-bits = 13 * 5
+            .Select(c =>
+                Convert.ToString(c, toBase: 2)
+                .PadLeft(8, '0')))
+            + '0'; // 65-bits = 13 * 5
 
-        var encodedPublisherId = string.Concat(
+        string encodedPublisherId = string.Concat(
             Enumerable.Range(0, binaryString.Length / 5)
-            .Select(i => Crockford32Alphabet
+            .Select(i => CrockfordBase32Alphabet
                 .Substring(
                     startIndex: Convert.ToInt32(
                         value: binaryString.Substring(i * 5, 5),
@@ -354,19 +409,21 @@ internal static class XmlExtensions
         .FindFirstElementOrDefault(nodeLocalName, namespaceUri)
         ?? throw new MsixShortcutException($"Could not find an '{nodeLocalName}' node in the AppxManifest.");
 
-    public static XmlAttribute? FindAttributeOrDefault(this XmlElement node, string attributeLocalName, string namespaceUri) =>
+    public static XmlAttribute? FindAttributeOrDefault(this XmlElement node, string attributeLocalName, string? namespaceUri = null) =>
         node.Attributes
         .Cast<XmlAttribute>()
         .FirstOrDefault(a =>
             string.Equals(a.LocalName, attributeLocalName, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(a.NamespaceURI, namespaceUri, StringComparison.OrdinalIgnoreCase));
+            && (string.IsNullOrEmpty(namespaceUri)
+                ? (string.IsNullOrEmpty(a.NamespaceURI) || string.Equals(a.OwnerElement!.NamespaceURI, a.NamespaceURI, StringComparison.OrdinalIgnoreCase))
+                : string.Equals(a.NamespaceURI, namespaceUri, StringComparison.OrdinalIgnoreCase)));
 
-    public static string? GetAttributeValueOrDefault(this XmlElement node, string attributeLocalName, string namespaceUri) =>
+    public static string? GetAttributeValueOrDefault(this XmlElement node, string attributeLocalName, string? namespaceUri = null) =>
         node
         .FindAttributeOrDefault(attributeLocalName, namespaceUri)
         ?.Value;
 
-    public static string GetAttributeValueOrThrow(this XmlElement node, string attributeLocalName, string namespaceUri) =>
+    public static string GetAttributeValueOrThrow(this XmlElement node, string attributeLocalName, string? namespaceUri = null) =>
         (node
         .FindAttributeOrDefault(attributeLocalName, namespaceUri)
         ?? throw new MsixShortcutException($"Could not find attribute '{attributeLocalName}' on node '{node.LocalName}' in the AppxManifest."))
@@ -387,8 +444,9 @@ internal static class XmlExtensions
 /// fully transparent, or different background color to work around this.
 /// </para>
 /// </remarks>
-/// <param name="PackageInstallationPath"></param>
+/// <param name="PackageInstallationPath">The package's installation path for the current version, like <c>C:\Program Files\WindowsApps\43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>.</param>
 /// <param name="PackageFamilyName">The package family name, like <c>43891JeniusApps.Ambie_jaj7tphbgjeh8</c>.</param>
+/// <param name="DisplayName">The name of the app, like <c>Ambie</c>.</param>
 /// <param name="ActivationBehavior">Specify whether this is a UWP app or a packaged Win32 app. Specifying the wrong value will make your shortcut unlaunchable.</param>
 /// <param name="AppIdentifier">
 /// The Id of the app that you want to launch. Corresponds to the Id attribute on the <a href="https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-application">Application</a>
@@ -401,6 +459,7 @@ internal static class XmlExtensions
 public sealed record PackageShortcutOptions(
     string PackageInstallationPath,
     string PackageFamilyName,
+    string DisplayName,
     ActivationBehavior ActivationBehavior,
     string AppIdentifier,
     string? Square44x44LogoPath = null,

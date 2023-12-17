@@ -13,7 +13,7 @@ public static class KnownSectionGuids
     public static readonly Guid Assets = new("{86D40B4D-9069-443C-819A-2A54090DCCEC}");
 
     /// <summary>
-    /// A section containing additional display name information. See <see cref="DisplayNameKey"/>.
+    /// A section containing additional display name information. See <see cref="TaskbarKey"/>.
     /// </summary>
     public static readonly Guid DisplayName = new("{B725F130-47EF-101A-A5F1-02608C9EEBAC}");
 
@@ -169,12 +169,12 @@ public enum Unknown1Key : uint
     Unknown13 = 0x13
 }
 
-public enum DisplayNameKey : uint
+public enum TaskbarKey : uint
 {
     /// <summary>
-    /// <para>
     /// The app name used on the taskbar pin. This value is applied when the user right-clicks the shell link and selects "Pin to Taskbar". This value should be identical to <see cref="AssetKey.DisplayName"/>.
-    /// </para>
+    /// </summary>
+    /// <remarks>
     /// <para>
     /// The name is shown on the taskbar pin in two places: when the application is closed and the user hovers the mouse over the pin to reveal a tooltip (the "Tooltip Name"), and when the user right-clicks the pin to reveal
     /// the jump list and the name is shown at the top of the list (the "Jump List Name").
@@ -195,8 +195,8 @@ public enum DisplayNameKey : uint
     /// When the key is present and set to the name of another packaged app, both the Jump List Name and the Tooltip Name will use the name of the other app. For example, if you were to create a shortcut to
     /// <a href="https://apps.microsoft.com/detail/9P07XNM5CHP0">Ambie</a> and you also had <a href="https://apps.microsoft.com/detail/9PF4KZ2VN4W9">TranslucentTB</a> installed, the pin would adopt the name "TranslucentTB".
     /// </para>
-    /// </summary>
-    TaskbarPinName = 0x0A
+    /// </remarks>
+    DisplayName = 0x0A
 }
 
 public enum Unknown2Key : uint
@@ -261,7 +261,7 @@ public sealed record DataEntryHeader(
             if (_section.Guid == KnownSectionGuids.Package) return Enum.GetName(typeof(PackageKey), Key);
             else if (_section.Guid == KnownSectionGuids.Assets) return Enum.GetName(typeof(AssetKey), Key);
             else if (_section.Guid == KnownSectionGuids.Unknown1) return Enum.GetName(typeof(Unknown1Key), Key);
-            else if (_section.Guid == KnownSectionGuids.DisplayName) return Enum.GetName(typeof(DisplayNameKey), Key);
+            else if (_section.Guid == KnownSectionGuids.DisplayName) return Enum.GetName(typeof(TaskbarKey), Key);
             else if (_section.Guid == KnownSectionGuids.Unknown2) return Enum.GetName(typeof(Unknown2Key), Key);
             else if (_section.Guid == KnownSectionGuids.ExperienceHost) return Enum.GetName(typeof(ExperienceHostKey), Key);
             else return string.Empty;
