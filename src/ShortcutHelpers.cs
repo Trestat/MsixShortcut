@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace MsixShortcut;
 
-public static class Util
+public static class ShortcutHelpers
 {
     /// <summary>
     /// Creates a new shell link file at the given path. If the shortcut file already exists, it will be overwritten.
