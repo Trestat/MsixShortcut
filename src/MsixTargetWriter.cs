@@ -1,5 +1,8 @@
 ﻿namespace MsixShortcut;
 
+/// <summary>
+/// Writes information for an ItemID that points to a packaged application.
+/// </summary>
 public sealed class MsixTargetWriter
 {
     private BinaryWriter Writer { get; }
@@ -10,6 +13,12 @@ public sealed class MsixTargetWriter
         Writer = new BinaryWriter(stream);
     }
 
+    /// <summary>
+    /// Writes an APPS section to the ItemID body.
+    /// </summary>
+    /// <param name="bodyWriter">The main body of the target descriptor. This section contains basic information required to invoke the app and visual assets.</param>
+    /// <param name="trailerWriter">An additional section that can contain additional metadata. Shell links created by Windows may include <see cref="KnownSectionGuids.ExperienceHost"/> here.</param>
+    /// <exception cref="ArgumentNullException"></exception>
     public void Apps(
         Action<MsixSectionWriter> bodyWriter,
         Action<MsixSectionWriter> trailerWriter)

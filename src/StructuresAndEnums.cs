@@ -15,12 +15,13 @@ public static class KnownSectionGuids
     /// <summary>
     /// A section containing additional display name information. See <see cref="TaskbarKey"/>.
     /// </summary>
-    public static readonly Guid DisplayName = new("{B725F130-47EF-101A-A5F1-02608C9EEBAC}");
+    public static readonly Guid Taskbar = new("{B725F130-47EF-101A-A5F1-02608C9EEBAC}");
 
     /// <summary>
     /// A section containing information about the ExperienceHost.
-    /// This section may be present on shell links created by Windows when the user drags and drops a packaged app icon from the Start menu to the desktop.
     /// See <see cref="ExperienceHostKey"/>.
+    /// This section may be present on shell links created by Windows when the user drags and drops a packaged app icon from the Start menu to the desktop.
+    /// It is only present in the Trailer of <see cref="MsixTargetWriter.Apps(Action{MsixSectionWriter}, Action{MsixSectionWriter})"/>.
     /// </summary>
     public static readonly Guid ExperienceHost = new("{FFAE9DB7-1C8D-43FF-818C-84403AA3732D}");
 
@@ -35,6 +36,9 @@ public static class KnownSectionGuids
     public static readonly Guid Unknown2 = new("{0DED77B3-C614-456C-AE5B-285B38D7B01B}");
 }
 
+/// <summary>
+/// Keys for use with <see cref="KnownSectionGuids.Package"/>.
+/// </summary>
 public enum PackageKey : uint
 {
     /// <summary>
@@ -43,7 +47,7 @@ public enum PackageKey : uint
     PackageFamilyNameAppTarget = 0x05,
 
     /// <summary>
-    /// Corresponds to <see cref="MsixShortcut.ActivationBehavior"/>.
+    /// Determines how the package needs to be activated when the user double-clicks the shell link. Corresponds to <see cref="MsixShortcut.ActivationBehavior"/>.
     /// </summary>
     ActivationBehavior = 0x0E,
 
@@ -60,7 +64,7 @@ public enum PackageKey : uint
     /// <summary>
     /// A string describing the full name of the package including version and processor architecture at the time the shortcut was created, like <c>43891JeniusApps.Ambie_3.9.26.0_x64__jaj7tphbgjeh8</c>.
     /// </summary>
-    PackageArch = 0x15,
+    PackageInstallFolderName = 0x15,
 
     /// <summary>
     /// Unknown. Always appears to be 1 in all files inspected.
@@ -68,7 +72,7 @@ public enum PackageKey : uint
     Unknown19 = 0x19,
     
     /// <summary>
-    /// Unknown. Some GUID value.
+    /// Unknown. Some GUID value. This may be used to uniquely identify the shell link.
     /// </summary>
     Unknown20 = 0x20,
 
@@ -78,6 +82,9 @@ public enum PackageKey : uint
     Unknown27 = 0x27 // (discovered on Windows build 22621)
 }
 
+/// <summary>
+/// Determines how the package needs to be activated when the user double-clicks the shell link. See <see cref="PackageKey.ActivationBehavior"/>.
+/// </summary>
 public enum ActivationBehavior : uint
 {
     /// <summary>
@@ -86,11 +93,14 @@ public enum ActivationBehavior : uint
     UWP = 1,
 
     /// <summary>
-    /// The app has a classic Win32 lifetime and/or is a "Desktop Bridge" app.
+    /// The app has a classic Win32 lifetime.
     /// </summary>
     Win32 = 2
 }
 
+/// <summary>
+/// Keys for use with <see cref="KnownSectionGuids.Assets"/>.
+/// </summary>
 public enum AssetKey : uint
 {
     /// <summary>
@@ -164,11 +174,17 @@ public enum AssetKey : uint
     Square71x71Logo = 0x14,
 }
 
+/// <summary>
+/// Keys for use with section <see cref="KnownSectionGuids.Unknown1"/>.
+/// </summary>
 public enum Unknown1Key : uint
 {
     Unknown13 = 0x13
 }
 
+/// <summary>
+/// Keys for use with section <see cref="KnownSectionGuids.Taskbar"/>.
+/// </summary>
 public enum TaskbarKey : uint
 {
     /// <summary>
@@ -199,6 +215,9 @@ public enum TaskbarKey : uint
     DisplayName = 0x0A
 }
 
+/// <summary>
+/// Keys for use with section <see cref="KnownSectionGuids.Unknown2"/>.
+/// </summary>
 public enum Unknown2Key : uint
 {
     /// <summary>
@@ -207,6 +226,9 @@ public enum Unknown2Key : uint
     Unknown07 = 0x07
 }
 
+/// <summary>
+/// Keys for use with section <see cref="KnownSectionGuids.ExperienceHost"/>.
+/// </summary>
 public enum ExperienceHostKey : uint
 {
     Unknown64 = 0x64
@@ -261,7 +283,7 @@ public sealed record DataEntryHeader(
             if (_section.Guid == KnownSectionGuids.Package) return Enum.GetName(typeof(PackageKey), Key);
             else if (_section.Guid == KnownSectionGuids.Assets) return Enum.GetName(typeof(AssetKey), Key);
             else if (_section.Guid == KnownSectionGuids.Unknown1) return Enum.GetName(typeof(Unknown1Key), Key);
-            else if (_section.Guid == KnownSectionGuids.DisplayName) return Enum.GetName(typeof(TaskbarKey), Key);
+            else if (_section.Guid == KnownSectionGuids.Taskbar) return Enum.GetName(typeof(TaskbarKey), Key);
             else if (_section.Guid == KnownSectionGuids.Unknown2) return Enum.GetName(typeof(Unknown2Key), Key);
             else if (_section.Guid == KnownSectionGuids.ExperienceHost) return Enum.GetName(typeof(ExperienceHostKey), Key);
             else return string.Empty;
@@ -291,10 +313,10 @@ public sealed record GuidDataEntryValue(byte[] Data) : IDataEntryValue
 
 public sealed record DataEntry(DataEntryHeader Header, IDataEntryValue Value);
 
-/// <summary></summary>
+/// <summary>Describes a <see cref="Section"/>.</summary>
 /// <param name="Leader">The start of the section. Zero in the main payload, but is 0xBEEF0027 on the Trailer.</param>
 /// <param name="Length">Total number of bytes in the section, including this header.</param>
-/// <param name="MagicSps1">Should be an ASCII string representing "SPS1".</param>
+/// <param name="MagicSps1">Should be a 4-byte ASCII string representing "SPS1".</param>
 /// <param name="Guid">A GUID representing the section type.</param>
 public sealed record SectionHeader(
     uint Leader,
@@ -309,7 +331,7 @@ public sealed record SectionHeader(
             if (Guid == KnownSectionGuids.Package) return nameof(KnownSectionGuids.Package);
             else if (Guid == KnownSectionGuids.Assets) return nameof(KnownSectionGuids.Assets);
             else if (Guid == KnownSectionGuids.Unknown1) return nameof(KnownSectionGuids.Unknown1);
-            else if (Guid == KnownSectionGuids.DisplayName) return nameof(KnownSectionGuids.DisplayName);
+            else if (Guid == KnownSectionGuids.Taskbar) return nameof(KnownSectionGuids.Taskbar);
             else if (Guid == KnownSectionGuids.Unknown2) return nameof(KnownSectionGuids.Unknown2);
             else if (Guid == KnownSectionGuids.ExperienceHost) return nameof(KnownSectionGuids.ExperienceHost);
             else return string.Empty;
@@ -317,12 +339,17 @@ public sealed record SectionHeader(
     }
 }
 
+/// <summary>
+/// Contains an array of key-value pairs.
+/// </summary>
+/// <param name="Header">The header describing this section.</param>
+/// <param name="Entries">The collection of key-value pairs.</param>
 public sealed record Section(SectionHeader Header, DataEntry[] Entries);
 
-/// <summary></summary>
+/// <summary>Describes a <see cref="MainBody"/>.</summary>
 /// <param name="Leader">Seems to always be 0x0000.</param>
 /// <param name="Length">Total number of bytes in the header and the main payload, minus 4; or, the number of bytes immediately following the Length field through the end of the main payload.</param>
-/// <param name="MagicApps">Should be an ASCII string representing "APPS".</param>
+/// <param name="MagicApps">Should be a 4-byte ASCII string representing "APPS".</param>
 /// <param name="LengthB">Number of bytes in main payload, plus 4.</param>
 /// <param name="Unknown1">Seems to always be 0x0008 in all files inspected.</param>
 /// <param name="Unknown2">Seems to always be 0x00000003 in all files inspected.</param>
@@ -334,22 +361,36 @@ public sealed record MainHeader(
     ushort Unknown1,
     uint Unknown2);
 
+/// <summary>
+/// Contains an array of sections.
+/// </summary>
+/// <param name="Header">The header describing this body.</param>
+/// <param name="Sections">The collection of sections.</param>
 public sealed record MainBody(
     MainHeader Header,
     Section[] Sections);
 
-/// <summary></summary>
+/// <summary>A trailer containing some additional metadata.</summary>
 /// <param name="Length">Total length of the trailer.</param>
+/// <param name="Section">The single section. In reverse-engineered shell links on Win10 19045 and Win11 22621, this is a section of type <see cref="KnownSectionGuids.ExperienceHost"/>.</param>
 /// <param name="LengthB">Total length from the start of the Header to the end of the main payload, plus +2.</param>
 public sealed record Trailer(
     uint Length,
     Section Section,
     ushort LengthB);
 
-public sealed record LinkIdObject(
+/// <summary>
+/// Represents the entirety of the ItemID that describes the packaged application target.
+/// </summary>
+/// <param name="MainBody"></param>
+/// <param name="Trailer"></param>
+public sealed record MsixTargetItemId(
     MainBody MainBody,
     Trailer Trailer);
 
+/// <summary>
+/// An assortment of constants used when reading and writing ItemID data describing the shell link target.
+/// </summary>
 public static class DataEntryConstants
 {
     public const int GUID_LENGTH = 16;

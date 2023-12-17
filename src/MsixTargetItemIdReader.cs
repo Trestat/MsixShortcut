@@ -1,16 +1,29 @@
 ﻿namespace MsixShortcut;
 
-public sealed class LinkIdObjectReader
+/// <summary>
+/// Reads information about a packaged application target from a shell link ItemID.
+/// To open a shell link for reading, use the Shell Link APIs provided by Windows or use a library such as <a href="https://github.com/securifybv/ShellLink"/>.
+/// </summary>
+public sealed class MsixTargetItemIdReader
 {
-    private byte[] Data { get; }
     private BinaryReader Reader { get; }
 
-    public LinkIdObjectReader(byte[] data)
+    public MsixTargetItemIdReader(byte[] data)
     {
-        Data = data ?? throw new ArgumentNullException(nameof(data));
-        Reader = new BinaryReader(new MemoryStream(Data));
+        if (data is null)
+        {
+            throw new ArgumentNullException(nameof(data));
+        }
+
+        var ms = new MemoryStream(data, writable: false);
+
+        Reader = new BinaryReader(ms);
     }
 
+    /// <summary>
+    /// Reads a <see cref="DataEntryHeader"/> from the byte array and advances the position.
+    /// </summary>
+    /// <returns></returns>
     public DataEntryHeader ReadDataEntryHeader()
     {
         return new DataEntryHeader(
@@ -37,6 +50,11 @@ public sealed class LinkIdObjectReader
 
     public GuidDataEntryValue ReadGuidDataEntryValue() => new(Data: Reader.ReadBytes(16));
 
+    /// <summary>
+    /// Reads a <see cref="DataEntry"/> from the byte array and advances the position.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="MsixShortcutException">Thrown if the reader encounters an unknown <see cref="DataEntryKind"/>.</exception>
     public DataEntry ReadDataEntry()
     {
         long startPos = Reader.BaseStream.Position;
@@ -50,7 +68,7 @@ public sealed class LinkIdObjectReader
             DataEntryKind.U64 => ReadU64DataEntryValue(),
             DataEntryKind.Text => ReadTextDataEntryValue(),
             DataEntryKind.Guid => ReadGuidDataEntryValue(),
-            _ => throw new InvalidOperationException($"Unknown DataEntryKind '{header.Kind}'.")
+            _ => throw new MsixShortcutException($"Unknown DataEntryKind '{header.Kind}'.")
         };
 
         var entry = new DataEntry(
@@ -62,6 +80,10 @@ public sealed class LinkIdObjectReader
         return entry;
     }
 
+    /// <summary>
+    /// Reads a <see cref="SectionHeader"/> from the byte array and advances the position.
+    /// </summary>
+    /// <returns></returns>
     public SectionHeader ReadSectionHeader()
     {
         return new SectionHeader(
@@ -71,6 +93,10 @@ public sealed class LinkIdObjectReader
             Guid: new Guid(Reader.ReadBytes(16)));
     }
 
+    /// <summary>
+    /// Reads a <see cref="Section"/> from the byte array and advances the position.
+    /// </summary>
+    /// <returns></returns>
     public Section ReadSection()
     {
         long startPos = Reader.BaseStream.Position;
@@ -98,6 +124,10 @@ public sealed class LinkIdObjectReader
         return section;
     }
 
+    /// <summary>
+    /// Reads a <see cref="MainHeader"/> from the byte array and advances the position.
+    /// </summary>
+    /// <returns></returns>
     public MainHeader ReadMainBodyHeader()
     {
         return new MainHeader(
@@ -109,6 +139,10 @@ public sealed class LinkIdObjectReader
             Unknown2: Reader.ReadUInt32());
     }
 
+    /// <summary>
+    /// Reads a <see cref="MainBody"/> from the byte array and advances the position.
+    /// </summary>
+    /// <returns></returns>
     public MainBody ReadMainBody()
     {
         long startPos = Reader.BaseStream.Position;

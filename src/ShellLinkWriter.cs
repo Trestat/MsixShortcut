@@ -1,5 +1,8 @@
 ﻿namespace MsixShortcut;
 
+/// <summary>
+/// Writes a simple shell link.
+/// </summary>
 public sealed class ShellLinkWriter
 {
     private BinaryWriter Writer { get; }
@@ -14,6 +17,9 @@ public sealed class ShellLinkWriter
         Writer = new BinaryWriter(stream);
     }
 
+    /// <summary>
+    /// Writes the shell link header block to the stream.
+    /// </summary>
     public void Header()
     {
         byte[] header = [
@@ -27,6 +33,10 @@ public sealed class ShellLinkWriter
         Writer.Write(header);
     }
 
+    /// <summary>
+    /// Writes the ItemIDList to the shell link.
+    /// </summary>
+    /// <param name="innerWriter"></param>
     public void LinkTargetItemId(Action<ItemIdWriter> innerWriter)
     {
         long linkTargetIdListLengthPos = Writer.BaseStream.Position;
@@ -43,6 +53,9 @@ public sealed class ShellLinkWriter
         Writer.BaseStream.Position = endPos;
     }
 
+    /// <summary>
+    /// Writes the shell link footer block to the stream.
+    /// </summary>
     public void Footer()
     {
         Writer.Write(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });

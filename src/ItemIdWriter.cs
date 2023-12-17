@@ -1,5 +1,8 @@
 ﻿namespace MsixShortcut;
 
+/// <summary>
+/// Writes a shell link ItemID.
+/// </summary>
 public sealed class ItemIdWriter
 {
     private BinaryWriter Writer { get; }
@@ -10,6 +13,12 @@ public sealed class ItemIdWriter
         Writer = new BinaryWriter(stream);
     }
 
+    /// <summary>
+    /// Writes an ItemID with the given data.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
     public void Item(byte[] data)
     {
         if (data is null) throw new ArgumentNullException(nameof(data));
@@ -20,6 +29,11 @@ public sealed class ItemIdWriter
         Writer.Write(data);
     }
 
+    /// <summary>
+    /// Writes an ItemID that describes a target to a packaged application.
+    /// </summary>
+    /// <param name="innerWriter"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public void Item(Action<MsixTargetWriter> innerWriter)
     {
         if (innerWriter is null) throw new ArgumentNullException(nameof(innerWriter));
