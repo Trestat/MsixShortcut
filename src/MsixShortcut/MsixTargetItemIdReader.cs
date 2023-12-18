@@ -54,7 +54,7 @@ public sealed class MsixTargetItemIdReader
     /// Reads a <see cref="DataEntry"/> from the byte array and advances the position.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="MsixShortcutException">Thrown if the reader encounters an unknown <see cref="DataEntryKind"/>.</exception>
+    /// <exception cref="MsixShortcutException">Thrown if the reader encounters an unknown <see cref="DataEntryKind"/> or if an unexpected length is encountered.</exception>
     public DataEntry ReadDataEntry()
     {
         long startPos = Reader.BaseStream.Position;
@@ -71,9 +71,30 @@ public sealed class MsixTargetItemIdReader
             _ => throw new MsixShortcutException($"Unknown DataEntryKind '{header.Kind}'.")
         };
 
+        ushort? extra = null;
+
+        //long positionDiff = 
+        //    Reader.BaseStream.Position - startPos - header.Length + 4;
+
+        Console.WriteLine(
+            $"Start {startPos}; " +
+            $"Current {Reader.BaseStream.Position}; " +
+            $"Diff {Reader.BaseStream.Position - startPos}; " +
+            $"HeaderLength {header.Length}");
+
+        //if (positionDiff == 2)
+        //{
+        //    extra = Reader.ReadUInt16();
+        //}
+        //else if (positionDiff != 0)
+        //{
+        //    throw new MsixShortcutException($"Unexpected extra data at the end of a DataEntry: {positionDiff} byte(s).");
+        //}
+
         var entry = new DataEntry(
             Header: header,
-            Value: value);
+            Value: value,
+            Extra: extra);
 
         Reader.BaseStream.Position = startPos + header.Length;
 

@@ -262,9 +262,11 @@ public enum DataEntryKind : uint
     Guid = 0x48
 }
 
-/// <summary></summary>
+/// <summary>Describes a <see cref="DataEntry"/>.</summary>
 /// <param name="Length">The length of the header and the payload, minus 4.</param>
 /// <param name="Key">Some key, as in a key=value relationship. The meaning of the key varies depending on the section in which this entry is contained.</param>
+/// <param name="Unknown1"></param>
+/// <param name="Kind">The data type, which refers to some type of <see cref="IDataEntryValue"/>.</param>
 public sealed record DataEntryHeader(
     uint Length,
     uint Key,
@@ -328,7 +330,7 @@ public sealed record GuidDataEntryValue(byte[] Data) : IDataEntryValue
     public override string ToString() => GuidValue.ToString();
 }
 
-public sealed record DataEntry(DataEntryHeader Header, IDataEntryValue Value);
+public sealed record DataEntry(DataEntryHeader Header, IDataEntryValue Value, ushort? Extra);
 
 /// <summary>Describes a <see cref="Section"/>.</summary>
 /// <param name="Leader">The start of the section. Zero in the main payload, but is 0xBEEF0027 on the Trailer.</param>
