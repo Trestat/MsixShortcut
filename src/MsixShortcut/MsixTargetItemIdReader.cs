@@ -75,28 +75,19 @@ public sealed class MsixTargetItemIdReader
 
         long positionDiff = header.Length - (Reader.BaseStream.Position - startPos);
 
-        Console.WriteLine(
-            $"Start {startPos}; " +
-            $"Current {Reader.BaseStream.Position}; " +
-            $"Diff {Reader.BaseStream.Position - startPos}; " +
-            $"HeaderLength {header.Length}; " +
-            $"HLDiff {header.Length - (Reader.BaseStream.Position - startPos)}");
-
         if (positionDiff == 2)
         {
-            //extra = Reader.ReadUInt16();
+            extra = Reader.ReadUInt16();
         }
         else if (positionDiff != 0)
         {
-            //throw new MsixShortcutException($"Unexpected extra data at the end of a DataEntry: {positionDiff} byte(s).");
+            throw new MsixShortcutException($"Unexpected extra data at the end of a DataEntry: {positionDiff} byte(s).");
         }
 
         var entry = new DataEntry(
             Header: header,
             Value: value,
             Extra: extra);
-
-        Reader.BaseStream.Position = startPos + header.Length;
 
         return entry;
     }
