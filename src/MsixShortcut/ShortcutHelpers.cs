@@ -61,10 +61,7 @@ public static class ShortcutHelpers
         writer.LinkTargetItemId((itemIdWriter =>
         {
             // "Applications"
-            itemIdWriter.Item(
-            [
-                0x1F, 0x80, 0x9B, 0xD4, 0x34, 0x42, 0x45, 0x02, 0xF3, 0x4D, 0xB7, 0x80, 0x38, 0x93, 0x94, 0x34, 0x56, 0xE1
-            ]);
+            itemIdWriter.Item(ItemIdWriter.ApplicationsItemId);
 
             itemIdWriter.Item(mtWriter =>
             {
@@ -85,16 +82,18 @@ public static class ShortcutHelpers
                         guid: KnownSectionGuids.Assets,
                         dataEntryWriter =>
                         {
-                            // All square tile assets must have a non-null `extra` value for it to be recognized as an icon for the desktop shortcut.
-                            // This is not relevant if the icon is merely pinned to the taskbar or to the Start menu as a tile.
-
-                            // (Win10 19045) Regardless of the asset provided, at least one must be provided for the shortcut to have an icon.
-                            // Additionally, it does not matter which asset key is provided, as Explorer will always use the appropriate
-                            // small, medium, or large tile depending on factors such as UI scaling and the display mode in Explorer
-                            // (i.e. "Extra large icons", "Medium icons", "Details" views, etc.)
-                            // Also, it is not strictly required that the asset key point to a specific file. It is enough to, for example,
-                            // set Square44x44Logo to the folder name "Images" or "Assets", whichever contains the images. Empty strings
-                            // do not work, and the folder or file name must exist. Setting it to "appxmanifest" also seems to work.
+                            /*
+                             * All square tile assets must have a non-null `extra` value for it to be recognized as an icon for the desktop shortcut.
+                             * This is not relevant if the icon is merely pinned to the taskbar or to the Start menu as a tile.
+                             *
+                             * (Win10 19045) Regardless of the asset provided, at least one must be provided for the shortcut to have an icon.
+                             * Additionally, it does not matter which asset key is provided, as Explorer will always use the appropriate
+                             * small, medium, or large tile depending on factors such as UI scaling and the display mode in Explorer
+                             * (i.e. "Extra large icons", "Medium icons", "Details" views, etc.)
+                             * Also, it is not strictly required that the asset key point to a specific file. It is enough to, for example,
+                             * set Square44x44Logo to the folder name "Images" or "Assets", whichever contains the images. Empty strings
+                             * do not work, and the folder or file name must exist. Setting it to "appxmanifest" also seems to work.
+                             */
 
                             if (options.Square44x44LogoPath is not null)
                             {
@@ -108,7 +107,12 @@ public static class ShortcutHelpers
 
                             if (options.Square150x150LogoPath is not null)
                             {
-                                dataEntryWriter.Text((uint)AssetKey.Square310x310Logo, options.Square150x150LogoPath, extra: 0);
+                                dataEntryWriter.Text((uint)AssetKey.Square150x150Logo, options.Square150x150LogoPath, extra: 0);
+                            }
+
+                            if (options.Square310x310LogoPath is not null)
+                            {
+                                dataEntryWriter.Text((uint)AssetKey.Square310x310Logo, options.Square310x310LogoPath, extra: 0);
                             }
 
                             if (options.Wide310x150LogoPath is not null)
@@ -116,10 +120,30 @@ public static class ShortcutHelpers
                                 dataEntryWriter.Text((uint)AssetKey.Wide310x150Logo, options.Wide310x150LogoPath, extra: 0);
                             }
                         });
+
+                    msWriter.Section(
+                        leader: 0x00000000,
+                        guid: KnownSectionGuids.Taskbar,
+                        dataEntryWriter =>
+                        {
+                            dataEntryWriter.Text((uint)TaskbarKey.DisplayName, options.DisplayName);
+                        });
                 },
                 trailerWriter =>
                 {
-                    // Nothing
+                    /*
+                     * Nothing.
+                     * 
+                     * To emulate the trailer that Win10 19045 creates when dragging a packaged app off of the Start menu, we can write this:
+                     * 
+                     * trailerWriter.Section(
+                     *	leader: 0xBEEF0027,
+                     *	guid: KnownSectionGuids.ExperienceHost,
+                     *	dataEntryWriter =>
+                     *	{
+                     *		dataEntryWriter.Text((uint)ExperienceHostKey.Unknown64, "Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy");
+                     *	});
+                     */
                 });
             });
         }));
@@ -193,6 +217,7 @@ internal static class XmlExtensions
 /// <param name="Square44x44LogoPath">An optional relative path to the Square44x44Logo resource as specified in the AppxManifest. At least one Logo resource is required for your shortcut to render an icon.</param>
 /// <param name="Square71x71LogoPath">An optional relative path to the Square71x71Logo resource as specified in the AppxManifest. At least one Logo resource is required for your shortcut to render an icon.</param>
 /// <param name="Square150x150LogoPath">An optional relative path to the Square150x150Logo resource as specified in the AppxManifest. At least one Logo resource is required for your shortcut to render an icon.</param>
+/// <param name="Square310x310LogoPath">An optional relative path to the Square310x310Logo resource as specified in the AppxManifest. At least one Logo resource is required for your shortcut to render an icon.</param>
 /// <param name="Wide310x150LogoPath">An optional relative path to the Wide310x150Logo resource as specified in the AppxManifest. At least one Logo resource is required for your shortcut to render an icon.</param>
 public sealed record PackageShortcutOptions(
     string PackageInstallationPath,
@@ -203,4 +228,5 @@ public sealed record PackageShortcutOptions(
     string? Square44x44LogoPath = null,
     string? Square71x71LogoPath = null,
     string? Square150x150LogoPath = null,
+    string? Square310x310LogoPath = null,
     string? Wide310x150LogoPath = null);

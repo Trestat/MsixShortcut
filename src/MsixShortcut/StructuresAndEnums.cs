@@ -301,13 +301,30 @@ public sealed record U64DataEntryValue(ulong Value) : IDataEntryValue;
 
 public sealed record TextDataEntryValue(uint CharCount, byte[] Data) : IDataEntryValue
 {
-    public string StringValue => ToString();
-    public override string ToString() => System.Text.Encoding.Unicode.GetString(Data);
+    public TextDataEntryValue(string s)
+        : this(
+            CharCount: (uint)s.Length + 1,
+            Data: System.Text.Encoding.Unicode.GetBytes(s + '\0'))
+    { }
+
+    public string StringValue =>
+        System.Text.Encoding.Unicode.GetString(
+            bytes: Data,
+            index: 0,
+            count: CharCount == 0 ? 0 : ((int)CharCount - 1) * 2); // Data has a null terminator char at the end; ignore it
+
+    public bool Equals(TextDataEntryValue other) =>
+        other is not null
+        && CharCount == other.CharCount
+        && Data.SequenceEqual(other.Data);
+
+    public override int GetHashCode() => CharCount.GetHashCode();
 }
 
 public sealed record GuidDataEntryValue(byte[] Data) : IDataEntryValue
 {
     public Guid GuidValue => new(Data);
+
     public override string ToString() => GuidValue.ToString();
 }
 
