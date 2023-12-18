@@ -1,6 +1,6 @@
 namespace MsixShortcut.Tests
 {
-    public sealed class Tests
+    public sealed class TestReadingAppxManifest
     {
         /*
         [Test]
