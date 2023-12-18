@@ -73,14 +73,14 @@ public sealed class MsixTargetItemIdReader
 
         ushort? extra = null;
 
-        long positionDiff = Reader.BaseStream.Position - startPos;
+        long positionDiff = header.Length - (Reader.BaseStream.Position - startPos);
 
         Console.WriteLine(
             $"Start {startPos}; " +
             $"Current {Reader.BaseStream.Position}; " +
             $"Diff {Reader.BaseStream.Position - startPos}; " +
             $"HeaderLength {header.Length}; " +
-            $"HLDiff {header.Length - positionDiff}");
+            $"HLDiff {header.Length - (Reader.BaseStream.Position - startPos)}");
 
         if (positionDiff == 2)
         {
