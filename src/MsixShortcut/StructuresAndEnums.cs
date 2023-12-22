@@ -179,7 +179,8 @@ public enum AssetKey : uint
 /// </summary>
 public enum Unknown1Key : uint
 {
-    Unknown13 = 0x13
+    Unknown13 = 0x13,
+    Unknown64 = 0x64
 }
 
 /// <summary>
@@ -315,7 +316,7 @@ public sealed record TextDataEntryValue(uint CharCount, byte[] Data) : IDataEntr
             index: 0,
             count: CharCount == 0 ? 0 : ((int)CharCount - 1) * 2); // Data has a null terminator char at the end; ignore it
 
-    public bool Equals(TextDataEntryValue other) =>
+    public bool Equals(TextDataEntryValue? other) =>
         other is not null
         && CharCount == other.CharCount
         && Data.SequenceEqual(other.Data);

@@ -9,5 +9,6 @@ public static class TestExtensions
                 Section: pair.s.Header.Guid,
                 Key: pair.e.Header.Key,
                 Kind: pair.e.Header.Kind,
-                Value: pair.e.Value));
+                Value: pair.e.Value,
+                Extra: pair.e.Extra));
 }

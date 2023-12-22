@@ -36,15 +36,15 @@ public sealed class TestCreateShortcut
 
             Assert.That(mainBody.Flatten(), Is.EquivalentTo(new SectionKeyValue[]
             {
-                new(KnownSectionGuids.Package, (uint)PackageKey.PackageInstallPath, DataEntryKind.Text, new TextDataEntryValue(@"c:\path\to\installation")),
-                new(KnownSectionGuids.Package, (uint)PackageKey.PackageFamilyNameAppTarget, DataEntryKind.Text, new TextDataEntryValue(@"43891JeniusApps.Ambie_jaj7tphbgjeh8!App")),
-                new(KnownSectionGuids.Package, (uint)PackageKey.ActivationBehavior, DataEntryKind.U32, new U32DataEntryValue((uint)ActivationBehavior.UWP)),
-                new(KnownSectionGuids.Assets, (uint)AssetKey.Square44x44Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\Square44x44Logo.png")),
-                new(KnownSectionGuids.Assets, (uint)AssetKey.Square71x71Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\SmallTile.png")),
-                new(KnownSectionGuids.Assets, (uint)AssetKey.Square150x150Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\Square150x150Logo.png")),
-                new(KnownSectionGuids.Assets, (uint)AssetKey.Square310x310Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\LargeTile.png")),
-                new(KnownSectionGuids.Assets, (uint)AssetKey.Wide310x150Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\Wide310x150Logo.png")),
-                new(KnownSectionGuids.Taskbar, (uint)TaskbarKey.DisplayName, DataEntryKind.Text, new TextDataEntryValue(@"Ambie")),
+                new(KnownSectionGuids.Package, (uint)PackageKey.PackageInstallPath, DataEntryKind.Text, new TextDataEntryValue(@"c:\path\to\installation"), 0),
+                new(KnownSectionGuids.Package, (uint)PackageKey.PackageFamilyNameAppTarget, DataEntryKind.Text, new TextDataEntryValue(@"43891JeniusApps.Ambie_jaj7tphbgjeh8!App"), null),
+                new(KnownSectionGuids.Package, (uint)PackageKey.ActivationBehavior, DataEntryKind.U32, new U32DataEntryValue((uint)ActivationBehavior.UWP), null),
+                new(KnownSectionGuids.Assets, (uint)AssetKey.Square44x44Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\Square44x44Logo.png"), 0),
+                new(KnownSectionGuids.Assets, (uint)AssetKey.Square71x71Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\SmallTile.png"), 0),
+                new(KnownSectionGuids.Assets, (uint)AssetKey.Square150x150Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\Square150x150Logo.png"), 0),
+                new(KnownSectionGuids.Assets, (uint)AssetKey.Square310x310Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\LargeTile.png"), 0),
+                new(KnownSectionGuids.Assets, (uint)AssetKey.Wide310x150Logo, DataEntryKind.Text, new TextDataEntryValue(@"Assets\Wide310x150Logo.png"), 0),
+                new(KnownSectionGuids.Taskbar, (uint)TaskbarKey.DisplayName, DataEntryKind.Text, new TextDataEntryValue(@"Ambie"), null),
             }));
         });
     }
