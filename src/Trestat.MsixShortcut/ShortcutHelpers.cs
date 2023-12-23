@@ -58,7 +58,7 @@ public static class ShortcutHelpers
 
         writer.Header();
         
-        writer.LinkTargetItemId((itemIdWriter =>
+        writer.LinkTargetItemId(itemIdWriter =>
         {
             // "Applications"
             itemIdWriter.Item(ItemIdWriter.ApplicationsItemId);
@@ -146,7 +146,7 @@ public static class ShortcutHelpers
                      */
                 });
             });
-        }));
+        });
 
         writer.Footer();
     }
