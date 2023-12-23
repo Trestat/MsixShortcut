@@ -7,6 +7,17 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>Trestat.MsixShortcut</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Blake Burgess</Authors>
+    <Company>Trestat LLC</Company>
+    <RepositoryUrl>https://github.com/Trestat/MsixShortcut</RepositoryUrl>
+    <PackageTags>msix appx shortcut shelllink shell link desktop</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>Create shortcuts to packaged APPX/MSIX apps without using execution aliases.</Description>
+  </PropertyGroup>
+
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="PolySharp" Version="1.14.0">
 			<PrivateAssets>all</PrivateAssets>
