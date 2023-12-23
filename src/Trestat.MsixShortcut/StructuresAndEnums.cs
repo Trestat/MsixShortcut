@@ -1,4 +1,4 @@
-﻿namespace MsixShortcut;
+﻿namespace Trestat.MsixShortcut;
 
 public static class KnownSectionGuids
 {

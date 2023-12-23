@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MsixShortcut;
+namespace Trestat.MsixShortcut;
 
 /// <summary>
 /// Writes a key-value pair.

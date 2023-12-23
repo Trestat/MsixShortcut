@@ -1,4 +1,4 @@
-﻿namespace MsixShortcut;
+﻿namespace Trestat.MsixShortcut;
 
 /// <summary>
 /// Writes a simple shell link.

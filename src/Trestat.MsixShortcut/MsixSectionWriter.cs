@@ -1,4 +1,4 @@
-﻿namespace MsixShortcut;
+﻿namespace Trestat.MsixShortcut;
 
 /// <summary>
 /// Writes a section containing some key-value entries.

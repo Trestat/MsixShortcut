@@ -1,4 +1,4 @@
-﻿namespace MsixShortcut.Tests;
+﻿namespace Trestat.MsixShortcut.Tests;
 
 public sealed class TestCreateShortcut
 {

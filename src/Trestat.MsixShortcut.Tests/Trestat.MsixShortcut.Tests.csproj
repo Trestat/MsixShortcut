@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MsixShortcut\MsixShortcut.csproj" />
+      <ProjectReference Include="..\Trestat.MsixShortcut\Trestat.MsixShortcut.csproj" />
     </ItemGroup>
 
 </Project>

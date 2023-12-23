@@ -1,6 +1,6 @@
 ﻿using System.Xml;
 
-namespace MsixShortcut;
+namespace Trestat.MsixShortcut;
 
 public static class ShortcutHelpers
 {

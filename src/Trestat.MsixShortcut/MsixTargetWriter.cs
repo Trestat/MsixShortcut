@@ -1,4 +1,4 @@
-﻿namespace MsixShortcut;
+﻿namespace Trestat.MsixShortcut;
 
 /// <summary>
 /// Writes information for an ItemID that points to a packaged application.

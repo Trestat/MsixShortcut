@@ -1,4 +1,4 @@
-﻿namespace MsixShortcut.Tests;
+﻿namespace Trestat.MsixShortcut.Tests;
 
 public static class TestExtensions
 {
